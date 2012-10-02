@@ -194,11 +194,10 @@ struct regmap_config {
 	bool use_single_rw;
 
 	const struct regmap_range_cfg *ranges;
-	unsigned int n_ranges;
+	unsigned int num_ranges;
 
 	enum regmap_endian reg_format_endian;
 	enum regmap_endian val_format_endian;
-
 };
 
 /**
