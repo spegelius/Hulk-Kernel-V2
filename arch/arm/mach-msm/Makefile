@@ -95,6 +95,8 @@ ifdef CONFIG_DEBUG_FS
 obj-$(CONFIG_MSM_IPC_LOGGING) += ipc_logging_debug.o
 endif
 obj-$(CONFIG_MSM_SMD) += smd.o smd_debug.o remote_spinlock.o smd_private.o
+obj-$(CONFIG_MSM_SMP2P) += smp2p.o smp2p_debug.o smp2p_gpio.o
+obj-$(CONFIG_MSM_SMP2P_TEST) += smp2p_loopback.o smp2p_test.o smp2p_gpio_test.o smp2p_spinlock_test.o
 obj-y += socinfo.o
 ifndef CONFIG_ARCH_MSM9615
 ifndef CONFIG_ARCH_APQ8064
