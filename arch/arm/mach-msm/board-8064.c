@@ -10,6 +10,7 @@
  * GNU General Public License for more details.
  *
  */
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/bitops.h>
 #include <linux/platform_device.h>
@@ -1921,7 +1922,8 @@ static void __init apq8064_map_io(void)
 {
 	msm_shared_ram_phys = MSM_SHARED_RAM_PHYS;
 	msm_map_apq8064_io();
-	if (socinfo_init() < 0)
+
+	if (IS_ERR_OR_NULL(socinfo_init()))
 		pr_err("socinfo_init() failed!\n");
 }
 
@@ -3290,7 +3292,7 @@ static void __init apq8064_common_init(void)
 	msm_spm_l2_init(msm_spm_l2_data);
 	msm_tsens_early_init(&apq_tsens_pdata);
 	msm_thermal_init(&msm_thermal_pdata);
-	if (socinfo_init() < 0)
+	if (IS_ERR_OR_NULL(socinfo_init()))
 		pr_err("socinfo_init() failed!\n");
 	BUG_ON(msm_rpm_init(&apq8064_rpm_data));
 	BUG_ON(msm_rpmrs_levels_init(&msm_rpmrs_data));

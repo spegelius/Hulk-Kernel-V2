@@ -10,6 +10,7 @@
  * GNU General Public License for more details.
  *
  */
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
@@ -1463,9 +1464,9 @@ static void __init msm8960_map_io(void)
 {
 	msm_shared_ram_phys = MSM_SHARED_RAM_PHYS;
 	msm_map_msm8960_io();
-
-	if (socinfo_init() < 0)
+	if (IS_ERR_OR_NULL(socinfo_init()))
 		pr_err("socinfo_init() failed!\n");
+
 }
 
 static void __init msm8960_init_irq(void)

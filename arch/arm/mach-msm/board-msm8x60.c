@@ -11,6 +11,7 @@
  *
  */
 
+#include <linux/err.h>
 #include <linux/kernel.h>
 #include <linux/platform_device.h>
 #include <linux/gpio.h>
@@ -7523,9 +7524,9 @@ static void __init msm8x60_map_io(void)
 {
 	msm_shared_ram_phys = MSM_SHARED_RAM_PHYS;
 	msm_map_msm8x60_io();
-
-	if (socinfo_init() < 0)
+	if (IS_ERR_OR_NULL(socinfo_init()))
 		pr_err("socinfo_init() failed!\n");
+
 }
 
 /*
