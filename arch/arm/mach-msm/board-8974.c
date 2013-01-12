@@ -538,9 +538,10 @@ static struct of_dev_auxdata msm_8974_auxdata_lookup[] __initdata = {
 
 void __init msm_8974_init(struct of_dev_auxdata **adata)
 {
-	msm_8974_init_gpiomux();
+	struct of_dev_auxdata *adata = msm8974_auxdata_lookup;
 
-	*adata = msm_8974_auxdata_lookup;
+	if (socinfo_init() < 0)
+		pr_err("%s: socinfo_init() failed\n", __func__);
 
 	regulator_has_full_constraints();
 }
