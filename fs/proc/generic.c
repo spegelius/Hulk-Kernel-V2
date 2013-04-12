@@ -850,3 +850,10 @@ void remove_proc_entry(const char *name, struct proc_dir_entry *parent)
 	pde_put(de);
 }
 EXPORT_SYMBOL(remove_proc_entry);
+
+void proc_remove(struct proc_dir_entry *de)
+{
+	if (de)
+		remove_proc_subtree(de->name, de->parent);
+}
+EXPORT_SYMBOL(proc_remove);
