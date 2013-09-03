@@ -17,10 +17,11 @@
 #define __MSM_CLK_PROVIDER_H
 
 #include <linux/types.h>
+#include <linux/err.h>
 #include <linux/list.h>
 #include <linux/clkdev.h>
-#include <linux/device.h>
 #include <linux/of.h>
+#include <linux/device.h>
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <linux/regulator/consumer.h>
@@ -203,6 +204,15 @@ extern struct clk dummy_clk;
 #define CLK_LOOKUP_OF(con, _c, dev) { .con_id = con, .clk = &(&_c)->c, \
 				      .dev_id = dev, .of_idx = clk_##_c }
 #define CLK_LIST(_c) { .clk = &(&_c)->c, .of_idx = clk_##_c }
+
+static inline bool is_better_rate(unsigned long req, unsigned long best,
+				  unsigned long new)
+{
+	if (IS_ERR_VALUE(new))
+		return false;
+
+	return (req <= new && new < best) || (best < req && best < new);
+}
 
 extern int of_clk_add_provider(struct device_node *np,
 			struct clk *(*clk_src_get)(struct of_phandle_args *args,
