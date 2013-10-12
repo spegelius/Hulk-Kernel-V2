@@ -20,6 +20,7 @@
 #include <linux/list.h>
 #include <linux/clkdev.h>
 #include <linux/device.h>
+#include <linux/of.h>
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <linux/regulator/consumer.h>
@@ -201,5 +202,11 @@ extern struct clk dummy_clk;
 #define CLK_LOOKUP(con, c, dev) { .con_id = con, .clk = &c, .dev_id = dev }
 #define CLK_LOOKUP_OF(con, _c, dev) { .con_id = con, .clk = &(&_c)->c, \
 				      .dev_id = dev, .of_idx = clk_##_c }
+
+extern int of_clk_add_provider(struct device_node *np,
+			struct clk *(*clk_src_get)(struct of_phandle_args *args,
+						   void *data),
+			void *data);
+extern void of_clk_del_provider(struct device_node *np);
 
 #endif

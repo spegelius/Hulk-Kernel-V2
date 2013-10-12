@@ -18,6 +18,8 @@
 #include <linux/slab.h>
 #include <linux/of.h>
 
+#if defined(CONFIG_COMMON_CLK)
+
 static DEFINE_SPINLOCK(enable_lock);
 static DEFINE_MUTEX(prepare_lock);
 
@@ -1457,6 +1459,8 @@ int clk_notifier_unregister(struct clk *clk, struct notifier_block *nb)
 }
 EXPORT_SYMBOL_GPL(clk_notifier_unregister);
 
+#endif /* CONFIG_COMMON_CLK */
+
 #ifdef CONFIG_OF
 /**
  * struct of_clk_provider - Clock provider registration structure
@@ -1577,6 +1581,8 @@ const char *of_clk_get_parent_name(struct device_node *np, int index)
 }
 EXPORT_SYMBOL_GPL(of_clk_get_parent_name);
 
+#if defined(CONFIG_COMMON_CLK)
+
 /**
  * of_clk_init() - Scan and init clock providers from the DT
  * @matches: array of compatible values and init functions for providers.
@@ -1594,4 +1600,7 @@ void __init of_clk_init(const struct of_device_id *matches)
 		clk_init_cb(np);
 	}
 }
+
+#endif /* CONFIG_COMMON_CLK */
+
 #endif
