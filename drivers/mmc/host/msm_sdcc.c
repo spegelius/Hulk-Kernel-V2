@@ -50,6 +50,7 @@
 #include <linux/barcode_emul.h>
 #endif
 #include <linux/iopoll.h>
+#include <linux/clk/msm-clk.h>
 
 #include <asm/cacheflush.h>
 #include <asm/div64.h>
@@ -57,7 +58,6 @@
 
 #include <asm/mach/mmc.h>
 #include <mach/msm_iomap.h>
-#include <mach/clk.h>
 #include <mach/dma.h>
 #include <mach/sdio_al.h>
 #include <mach/mpm.h>
