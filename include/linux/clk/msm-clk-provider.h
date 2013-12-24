@@ -202,6 +202,7 @@ extern struct clk dummy_clk;
 #define CLK_LOOKUP(con, c, dev) { .con_id = con, .clk = &c, .dev_id = dev }
 #define CLK_LOOKUP_OF(con, _c, dev) { .con_id = con, .clk = &(&_c)->c, \
 				      .dev_id = dev, .of_idx = clk_##_c }
+#define CLK_LIST(_c) { .clk = &(&_c)->c, .of_idx = clk_##_c }
 
 extern int of_clk_add_provider(struct device_node *np,
 			struct clk *(*clk_src_get)(struct of_phandle_args *args,
