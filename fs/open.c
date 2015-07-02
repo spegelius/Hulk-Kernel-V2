@@ -596,6 +596,7 @@ SYSCALL_DEFINE3(fchown, unsigned int, fd, uid_t, user, gid_t, group)
 {
 	struct file * file;
 	int error = -EBADF;
+	struct dentry *dentry;
 
 	file = fget(fd);
 	if (!file)
