@@ -10,6 +10,7 @@
  */
 
 #include <linux/proc_fs.h>
+#include <linux/binfmts.h>
 struct  ctl_table_header;
 
 extern struct proc_dir_entry proc_root;
@@ -103,6 +104,7 @@ struct pde_opener {
 	int (*release)(struct inode *, struct file *);
 	struct list_head lh;
 };
+
 void pde_users_dec(struct proc_dir_entry *pde);
 
 extern spinlock_t proc_subdir_lock;
