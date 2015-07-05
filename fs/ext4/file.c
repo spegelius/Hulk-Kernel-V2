@@ -154,7 +154,6 @@ static int ext4_file_mmap(struct file *file, struct vm_area_struct *vma)
 		return -ENOEXEC;
 	file_accessed(file);
 	vma->vm_ops = &ext4_file_vm_ops;
-	vma->vm_flags |= VM_CAN_NONLINEAR;
 	return 0;
 }
 
