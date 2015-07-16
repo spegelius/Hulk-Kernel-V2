@@ -234,16 +234,16 @@ static const struct file_operations timerfd_fops = {
 	.llseek		= noop_llseek,
 };
 
-static int timerfd_fget(int fd, struct fd *p)
+static struct file *timerfd_fget(int fd)
 {
 	struct file *file;
 
 	file = fget(fd);
 	if (!file)
-		return -EBADF;
+		return ERR_PTR(-EBADF);
 	if (file->f_op != &timerfd_fops) {
 		fput(file);
-		return -EINVAL;
+		return ERR_PTR(-EINVAL);
 	}
 
 	return file;
@@ -297,17 +297,10 @@ SYSCALL_DEFINE4(timerfd_settime, int, ufd, int, flags,
 	    !timespec_valid(&ktmr.it_interval))
 		return -EINVAL;
 
-<<<<<<< HEAD
 	file = timerfd_fget(ufd);
 	if (IS_ERR(file))
 		return PTR_ERR(file);
 	ctx = file->private_data;
-=======
-	ret = timerfd_fget(ufd, &f);
-	if (ret)
-		return ret;
-	ctx = f.file->private_data;
->>>>>>> 2df357a... fixes
 
 	timerfd_setup_cancel(ctx, flags);
 
@@ -373,4 +366,5 @@ SYSCALL_DEFINE2(timerfd_gettime, int, ufd, struct itimerspec __user *, otmr)
 
 	return copy_to_user(otmr, &kotmr, sizeof(kotmr)) ? -EFAULT: 0;
 }
+
 

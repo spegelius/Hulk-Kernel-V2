@@ -172,7 +172,7 @@ static void scfs_evict_inode(struct inode *inode)
 	struct scfs_inode_info *sii = SCFS_I(inode);
 
 	truncate_inode_pages(&inode->i_data, 0);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0)
 	clear_inode(inode);
 #else
 	end_writeback(inode);
