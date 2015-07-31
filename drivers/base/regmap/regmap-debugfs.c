@@ -373,17 +373,17 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
 	struct regmap_range_node *range_node;
 	const char *devname = "dummy";
 
+	INIT_LIST_HEAD(&map->debugfs_off_cache);
+
 	if (map->dev)
 		devname = dev_name(map->dev);
 
-	INIT_LIST_HEAD(&map->debugfs_off_cache);
-
 	if (name) {
 		map->debugfs_name = kasprintf(GFP_KERNEL, "%s-%s",
-					      dev_name, name);
+					      devname, name);
 		name = map->debugfs_name;
 	} else {
-		name = dev_name(map->dev);
+		name = devname;
 	}
 
 	map->debugfs = debugfs_create_dir(name, regmap_debugfs_root);
