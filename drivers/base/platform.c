@@ -28,9 +28,6 @@
 /* For automatically allocated device IDs */
 static DEFINE_IDA(platform_devid_ida);
 
-/* For automatically allocated device IDs */
-static DEFINE_IDA(platform_devid_ida);
-
 #define to_platform_driver(drv)	(container_of((drv), struct platform_driver, \
 				 driver))
 
