@@ -3395,6 +3395,12 @@ config MSM_LIMITER
 	  The MSM Frequency Limiter Driver controls max frequency limit for each CPU
 	  to desired value on suspend/resume
 
+config GED_BUILD
+	bool "Use Google Experience Device"
+	default n
+	help
+	Use Google Experience Device.
+
 endif
 
 config KERNEL_TEXT_MPU_PROT
