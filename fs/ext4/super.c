@@ -338,7 +338,7 @@ handle_t *ext4_journal_start_sb(struct super_block *sb, int nblocks)
 	journal_t *journal;
 
 	trace_ext4_journal_start(sb, nblocks, _RET_IP_);
-	if (sb->s_flags & MS_RDONLY)
+	if (sb->s_flags & MS_RDONLY && !journal_current_handle())
 		return ERR_PTR(-EROFS);
 
 	WARN_ON(sb->s_writers.frozen == SB_FREEZE_COMPLETE);
