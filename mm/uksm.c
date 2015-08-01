@@ -3212,7 +3212,7 @@ static struct rmap_item *get_next_rmap_item(struct vma_slot *slot, u32 *hash)
 	if (slot->flags & UKSM_SLOT_NEED_RERAND) {
 		rand_range = slot->pages - scan_index;
 		BUG_ON(!rand_range);
-		swap_index = scan_index + (random32() % rand_range);
+		swap_index = scan_index + (prandom_u32() % rand_range);
 	}
 
 	if (swap_index != scan_index) {
@@ -3401,7 +3401,7 @@ void reset_current_scan(struct scan_rung *rung, int finished, int step_recalc)
 		BUG_ON(step_need_recalc(rung));
 	}
 
-	slot_iter_index = random32() % rung->step;
+	slot_iter_index = prandom_u32() % rung->step;
 	BUG_ON(!rung->vma_root.rnode);
 	slot = sradix_tree_next(&rung->vma_root, NULL, 0, slot_iter);
 	BUG_ON(!slot);
@@ -4672,8 +4672,9 @@ again:
 			struct vm_area_struct *vma;
 
 			anon_vma_lock(anon_vma);
-			list_for_each_entry(vmac, &anon_vma->head,
-					    same_anon_vma) {
+			anon_vma_interval_tree_foreach(vmac, &anon_vma->rb_root,
+						       0, ULONG_MAX) {
+
 				vma = vmac->vma;
 				address = get_rmap_addr(rmap_item);
 
@@ -4736,8 +4737,8 @@ again:
 			struct vm_area_struct *vma;
 
 			anon_vma_lock(anon_vma);
-			list_for_each_entry(vmac, &anon_vma->head,
-					    same_anon_vma) {
+			anon_vma_interval_tree_foreach(vmac, &anon_vma->rb_root,
+						       0, ULONG_MAX) {
 				vma = vmac->vma;
 				address = get_rmap_addr(rmap_item);
 
@@ -4796,8 +4797,8 @@ again:
 			struct vm_area_struct *vma;
 
 			anon_vma_lock(anon_vma);
-			list_for_each_entry(vmac, &anon_vma->head,
-					    same_anon_vma) {
+			anon_vma_interval_tree_foreach(vmac, &anon_vma->rb_root,
+						       0, ULONG_MAX) {
 				vma = vmac->vma;
 				address = get_rmap_addr(rmap_item);
 
@@ -5380,7 +5381,7 @@ static inline int cal_positive_negative_costs(void)
 
 	addr1 = kmap_atomic(p1);
 	addr2 = kmap_atomic(p2);
-	memset(addr1, random32(), PAGE_SIZE);
+	memset(addr1, prandom_u32(), PAGE_SIZE);
 	memcpy(addr2, addr1, PAGE_SIZE);
 
 	/* make sure that the two pages differ in last byte */
@@ -5451,7 +5452,7 @@ static inline int init_random_sampling(void)
 		unsigned long rand_range, swap_index, tmp;
 
 		rand_range = HASH_STRENGTH_FULL - i;
-		swap_index = i + random32() % rand_range;
+		swap_index = i + prandom_u32() % rand_range;
 		tmp = random_nums[i];
 		random_nums[i] =  random_nums[swap_index];
 		random_nums[swap_index] = tmp;
@@ -5541,7 +5542,20 @@ int ksm_madvise(struct vm_area_struct *vma, unsigned long start,
 struct page *ksm_does_need_to_copy(struct page *page,
 			struct vm_area_struct *vma, unsigned long address)
 {
+	struct anon_vma *anon_vma = page_anon_vma(page);
 	struct page *new_page;
+
+	if (PageKsm(page)) {
+		if (page_stable_node(page))
+			return page;	/* no need to copy it */
+	} else if (!anon_vma) {
+		return page;		/* no need to copy it */
+	} else if (anon_vma->root == vma->anon_vma->root &&
+		 page->index == linear_page_index(vma, address)) {
+		return page;		/* still no need to copy it */
+	}
+	if (!PageUptodate(page))
+		return page;		/* let do_swap_page report the error */
 
 	new_page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma, address);
 	if (new_page) {
@@ -5549,13 +5563,7 @@ struct page *ksm_does_need_to_copy(struct page *page,
 
 		SetPageDirty(new_page);
 		__SetPageUptodate(new_page);
-		SetPageSwapBacked(new_page);
 		__set_page_locked(new_page);
-
-		if (page_evictable(new_page, vma))
-			lru_cache_add_lru(new_page, LRU_ACTIVE_ANON);
-		else
-			add_page_to_unevictable_list(new_page);
 	}
 
 	return new_page;
