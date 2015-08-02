@@ -77,6 +77,7 @@ static uint32_t oom_count = 0;
 #define _ZONE ZONE_HIGHMEM
 #else
 #define _ZONE ZONE_NORMAL
+#endif
 
 static uint32_t lowmem_debug_level = 1;
 static int lowmem_adj[6] = {
@@ -169,11 +170,6 @@ int can_use_cma_pages(gfp_t gfp_mask)
 #if defined(CONFIG_ZSWAP)
 extern atomic_t zswap_pool_pages;
 extern atomic_t zswap_stored_pages;
-#endif
-#ifdef CONFIG_ANDROID_LMK_ADJ_RBTREE
-static struct task_struct *pick_next_from_adj_tree(struct task_struct *task);
-static struct task_struct *pick_first_task(void);
-static struct task_struct *pick_last_task(void);
 #endif
 
 #if 0 /* LP draning RAM, We need to trigger OOM on protected_apps/system for now */
@@ -416,6 +412,12 @@ void tune_lmk_param(int *other_free, int *other_file, struct shrink_control *sc,
 	}
 }
 
+#ifdef CONFIG_ANDROID_LMK_ADJ_RBTREE
+static struct task_struct *pick_next_from_adj_tree(struct task_struct *task);
+static struct task_struct *pick_first_task(void);
+static struct task_struct *pick_last_task(void);
+#endif
+
 static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 {
 	struct task_struct *tsk;
@@ -469,10 +471,10 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 	}
 	rcu_read_unlock();
 
- 	if (nr_to_scan > 0) {
- 		if (mutex_lock_interruptible(&scan_mutex) < 0)
- 			return 0;
- 	}
+	if (nr_to_scan > 0) {
+		if (mutex_lock_interruptible(&scan_mutex) < 0)
+			return 0;
+	}
 
 #ifndef CONFIG_CMA
 	other_free = global_page_state(NR_FREE_PAGES);
@@ -666,9 +668,10 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 		}
 		pcred = __task_cred(p);
 		uid = pcred->uid;
+
 #if 0 /* LP draning RAM, We need to trigger OOM on protected_apps for now */
-		if (avoid_to_kill(uid) || protected_apps(p->comm)){
-			if (tasksize * (long)(PAGE_SIZE / 1024) >= 80000){
+		if (avoid_to_kill(uid) || protected_apps(p->comm)) {
+			if (tasksize * (long)(PAGE_SIZE / 1024) >= 80000) {
 				selected = p;
 				selected_tasksize = tasksize;
 				selected_oom_score_adj = oom_score_adj;
@@ -1173,7 +1176,7 @@ static struct task_struct *pick_next_from_adj_tree(struct task_struct *task)
 	if (!next)
 		return NULL;
 
-	 return rb_entry(next, struct task_struct, adj_node);
+	return rb_entry(next, struct task_struct, adj_node);
 }
 
 static struct task_struct *pick_first_task(void)
