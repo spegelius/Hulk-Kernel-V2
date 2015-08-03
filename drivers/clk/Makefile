@@ -1,5 +1,6 @@
 # common clock types
-obj-$(CONFIG_HAVE_CLK)		+= clk-devres.o clk.o
+obj-$(CONFIG_HAVE_CLK)		+= clk-devres.o
+obj-$(CONFIG_OF)		+= clk.o
 obj-$(CONFIG_CLKDEV_LOOKUP)	+= clkdev.o
 obj-$(CONFIG_COMMON_CLK)	+= clk-divider.o
 obj-$(CONFIG_COMMON_CLK)	+= clk-fixed-factor.o
