@@ -94,6 +94,11 @@ struct clk *clk_register_mux(struct device *dev, const char *name,
 		u8 clk_mux_flags, spinlock_t *lock)
 {
 	struct clk_mux *mux;
+<<<<<<< HEAD
+=======
+	struct clk *clk;
+	struct clk_init_data init;
+>>>>>>> 0197b3e... clk: Use a separate struct for holding init data.
 
 	mux = kmalloc(sizeof(struct clk_mux), GFP_KERNEL);
 
@@ -102,6 +107,12 @@ struct clk *clk_register_mux(struct device *dev, const char *name,
 		return ERR_PTR(-ENOMEM);
 	}
 
+	init.name = name;
+	init.ops = &clk_mux_ops;
+	init.flags = flags;
+	init.parent_names = parent_names;
+	init.num_parents = num_parents;
+
 	/* struct clk_mux assignments */
 	mux->reg = reg;
 	mux->shift = shift;
@@ -109,6 +120,15 @@ struct clk *clk_register_mux(struct device *dev, const char *name,
 	mux->flags = clk_mux_flags;
 	mux->lock = lock;
 
+<<<<<<< HEAD
 	return clk_register(dev, name, &clk_mux_ops, &mux->hw,
 			parent_names, num_parents, flags);
+=======
+	clk = clk_register(dev, &mux->hw);
+
+	if (IS_ERR(clk))
+		kfree(mux);
+
+	return clk;
+>>>>>>> 0197b3e... clk: Use a separate struct for holding init data.
 }

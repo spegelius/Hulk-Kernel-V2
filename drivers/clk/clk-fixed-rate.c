@@ -43,8 +43,13 @@ struct clk *clk_register_fixed_rate(struct device *dev, const char *name,
 		unsigned long fixed_rate)
 {
 	struct clk_fixed_rate *fixed;
+<<<<<<< HEAD
 	char **parent_names = NULL;
 	u8 len;
+=======
+	struct clk *clk;
+	struct clk_init_data init;
+>>>>>>> 0197b3e... clk: Use a separate struct for holding init data.
 
 	fixed = kzalloc(sizeof(struct clk_fixed_rate), GFP_KERNEL);
 
@@ -53,9 +58,17 @@ struct clk *clk_register_fixed_rate(struct device *dev, const char *name,
 		return ERR_PTR(-ENOMEM);
 	}
 
+	init.name = name;
+	init.ops = &clk_fixed_rate_ops;
+	init.flags = flags;
+	init.parent_names = (parent_name ? &parent_name: NULL);
+	init.num_parents = (parent_name ? 1 : 0);
+
 	/* struct clk_fixed_rate assignments */
 	fixed->fixed_rate = fixed_rate;
+	fixed->hw.init = &init;
 
+<<<<<<< HEAD
 	if (parent_name) {
 		parent_names = kmalloc(sizeof(char *), GFP_KERNEL);
 
@@ -78,4 +91,13 @@ out:
 			parent_names,
 			(parent_name ? 1 : 0),
 			flags);
+=======
+	/* register the clock */
+	clk = clk_register(dev, &fixed->hw);
+
+	if (IS_ERR(clk))
+		kfree(fixed);
+
+	return clk;
+>>>>>>> 0197b3e... clk: Use a separate struct for holding init data.
 }

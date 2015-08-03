@@ -112,6 +112,7 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 {
 	struct clk_gate *gate;
 	struct clk *clk;
+	struct clk_init_data init;
 
 	gate = kzalloc(sizeof(struct clk_gate), GFP_KERNEL);
 
@@ -120,12 +121,20 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 		return NULL;
 	}
 
+	init.name = name;
+	init.ops = &clk_gate_ops;
+	init.flags = flags;
+	init.parent_names = (parent_name ? &parent_name: NULL);
+	init.num_parents = (parent_name ? 1 : 0);
+
 	/* struct clk_gate assignments */
 	gate->reg = reg;
 	gate->bit_idx = bit_idx;
 	gate->flags = clk_gate_flags;
 	gate->lock = lock;
+	gate->hw.init = &init;
 
+<<<<<<< HEAD
 	if (parent_name) {
 		gate->parent[0] = kstrdup(parent_name, GFP_KERNEL);
 		if (!gate->parent[0])
@@ -142,6 +151,9 @@ struct clk *clk_register_gate(struct device *dev, const char *name,
 out:
 	kfree(gate->parent[0]);
 	kfree(gate);
+=======
+	clk = clk_register(dev, &gate->hw);
+>>>>>>> 0197b3e... clk: Use a separate struct for holding init data.
 
 	return NULL;
 }

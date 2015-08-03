@@ -55,12 +55,22 @@ struct clk {
  * alternative macro for static initialization
  */
 
-extern const struct clk_ops clk_fixed_rate_ops;
+#define DEFINE_CLK(_name, _ops, _flags, _parent_names,		\
+		_parents)					\
+	static struct clk _name = {				\
+		.name = #_name,					\
+		.ops = &_ops,					\
+		.hw = &_name##_hw.hw,				\
+		.parent_names = _parent_names,			\
+		.num_parents = ARRAY_SIZE(_parent_names),	\
+		.parents = _parents,				\
+		.flags = _flags | CLK_IS_BASIC,			\
+	}
 
 #define DEFINE_CLK_FIXED_RATE(_name, _flags, _rate,		\
 				_fixed_rate_flags)		\
 	static struct clk _name;				\
-	static char *_name##_parent_names[] = {};		\
+	static const char *_name##_parent_names[] = {};		\
 	static struct clk_fixed_rate _name##_hw = {		\
 		.hw = {						\
 			.clk = &_name,				\
@@ -68,23 +78,14 @@ extern const struct clk_ops clk_fixed_rate_ops;
 		.fixed_rate = _rate,				\
 		.flags = _fixed_rate_flags,			\
 	};							\
-	static struct clk _name = {				\
-		.name = #_name,					\
-		.ops = &clk_fixed_rate_ops,			\
-		.hw = &_name##_hw.hw,				\
-		.parent_names = _name##_parent_names,		\
-		.num_parents =					\
-			ARRAY_SIZE(_name##_parent_names),	\
-		.flags = _flags,				\
-	};
-
-extern const struct clk_ops clk_gate_ops;
+	DEFINE_CLK(_name, clk_fixed_rate_ops, _flags,		\
+			_name##_parent_names, NULL);
 
 #define DEFINE_CLK_GATE(_name, _parent_name, _parent_ptr,	\
 				_flags, _reg, _bit_idx,		\
 				_gate_flags, _lock)		\
 	static struct clk _name;				\
-	static char *_name##_parent_names[] = {			\
+	static const char *_name##_parent_names[] = {		\
 		_parent_name,					\
 	};							\
 	static struct clk *_name##_parents[] = {		\
@@ -99,24 +100,14 @@ extern const struct clk_ops clk_gate_ops;
 		.flags = _gate_flags,				\
 		.lock = _lock,					\
 	};							\
-	static struct clk _name = {				\
-		.name = #_name,					\
-		.ops = &clk_gate_ops,				\
-		.hw = &_name##_hw.hw,				\
-		.parent_names = _name##_parent_names,		\
-		.num_parents =					\
-			ARRAY_SIZE(_name##_parent_names),	\
-		.parents = _name##_parents,			\
-		.flags = _flags,				\
-	};
+	DEFINE_CLK(_name, clk_gate_ops, _flags,			\
+			_name##_parent_names, _name##_parents);
 
-extern const struct clk_ops clk_divider_ops;
-
-#define DEFINE_CLK_DIVIDER(_name, _parent_name, _parent_ptr,	\
+#define _DEFINE_CLK_DIVIDER(_name, _parent_name, _parent_ptr,	\
 				_flags, _reg, _shift, _width,	\
-				_divider_flags, _lock)		\
+				_divider_flags, _table, _lock)	\
 	static struct clk _name;				\
-	static char *_name##_parent_names[] = {			\
+	static const char *_name##_parent_names[] = {		\
 		_parent_name,					\
 	};							\
 	static struct clk *_name##_parents[] = {		\
@@ -130,20 +121,26 @@ extern const struct clk_ops clk_divider_ops;
 		.shift = _shift,				\
 		.width = _width,				\
 		.flags = _divider_flags,			\
+		.table = _table,				\
 		.lock = _lock,					\
 	};							\
-	static struct clk _name = {				\
-		.name = #_name,					\
-		.ops = &clk_divider_ops,			\
-		.hw = &_name##_hw.hw,				\
-		.parent_names = _name##_parent_names,		\
-		.num_parents =					\
-			ARRAY_SIZE(_name##_parent_names),	\
-		.parents = _name##_parents,			\
-		.flags = _flags,				\
-	};
+	DEFINE_CLK(_name, clk_divider_ops, _flags,		\
+			_name##_parent_names, _name##_parents);
 
-extern const struct clk_ops clk_mux_ops;
+#define DEFINE_CLK_DIVIDER(_name, _parent_name, _parent_ptr,	\
+				_flags, _reg, _shift, _width,	\
+				_divider_flags, _lock)		\
+	_DEFINE_CLK_DIVIDER(_name, _parent_name, _parent_ptr,	\
+				_flags, _reg, _shift, _width,	\
+				_divider_flags, NULL, _lock)
+
+#define DEFINE_CLK_DIVIDER_TABLE(_name, _parent_name,		\
+				_parent_ptr, _flags, _reg,	\
+				_shift, _width, _divider_flags,	\
+				_table, _lock)			\
+	_DEFINE_CLK_DIVIDER(_name, _parent_name, _parent_ptr,	\
+				_flags, _reg, _shift, _width,	\
+				_divider_flags, _table, _lock)	\
 
 #define DEFINE_CLK_MUX(_name, _parent_names, _parents, _flags,	\
 				_reg, _shift, _width,		\
@@ -155,20 +152,12 @@ extern const struct clk_ops clk_mux_ops;
 		},						\
 		.reg = _reg,					\
 		.shift = _shift,				\
-		.width = _width,				\
+		.mask = BIT(_width) - 1,			\
 		.flags = _mux_flags,				\
 		.lock = _lock,					\
 	};							\
-	static struct clk _name = {				\
-		.name = #_name,					\
-		.ops = &clk_mux_ops,				\
-		.hw = &_name##_hw.hw,				\
-		.parent_names = _parent_names,			\
-		.num_parents =					\
-			ARRAY_SIZE(_parent_names),		\
-		.parents = _parents,				\
-		.flags = _flags,				\
-	};
+	DEFINE_CLK(_name, clk_mux_ops, _flags, _parent_names,	\
+			_parents);
 
 #define DEFINE_CLK_FIXED_FACTOR(_name, _parent_name,		\
 				_parent_ptr, _flags,		\
@@ -213,6 +202,8 @@ extern const struct clk_ops clk_mux_ops;
  * Returns 0 on success, otherwise an error code.
  */
 int __clk_init(struct device *dev, struct clk *clk);
+
+struct clk *__clk_register(struct device *dev, struct clk_hw *hw);
 
 #endif /* CONFIG_COMMON_CLK */
 #endif /* CLK_PRIVATE_H */
