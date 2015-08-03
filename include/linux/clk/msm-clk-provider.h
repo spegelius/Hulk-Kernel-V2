@@ -189,8 +189,6 @@ void __clk_post_reparent(struct clk *c, struct clk *old, unsigned long *flags);
 
 /* Register clocks with the MSM clock driver */
 int msm_clock_register(struct clk_lookup *table, size_t size);
-int of_msm_clock_register(struct device_node *np, struct clk_lookup *table,
-				size_t size);
 
 extern struct clk dummy_clk;
 
@@ -201,8 +199,6 @@ extern struct clk dummy_clk;
 	}
 
 #define CLK_LOOKUP(con, c, dev) { .con_id = con, .clk = &c, .dev_id = dev }
-#define CLK_LOOKUP_OF(con, _c, dev) { .con_id = con, .clk = &(&_c)->c, \
-				      .dev_id = dev, .of_idx = clk_##_c }
 #define CLK_LIST(_c) { .clk = &(&_c)->c, .of_idx = clk_##_c }
 
 static inline bool is_better_rate(unsigned long req, unsigned long best,
