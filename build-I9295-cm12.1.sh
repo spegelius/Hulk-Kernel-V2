@@ -20,7 +20,9 @@ KERNEL_NAME=Hulk-Kernel
 OUTPUT=$KERNEL_DIR/output_hulk_$DATE
 MODULES=$OUTPUT/modules
 ZIMAGE=arch/arm/boot/zImage
-TOOLCHAIN=/home/walter79/Android/toolchains/arm-cortex_a15-linux-gnueabihf-linaro_4.9.3-2015.03/bin/arm-eabi-
+if [ -z "$TOOLCHAIN" ]; then
+  TOOLCHAIN=/media/storage/toolchain/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+fi
 BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 
 # Colors
@@ -38,8 +40,8 @@ BOLD=`tput bold`
 NORMAL=`tput sgr0`
 
 # DEFCONFIG Files
-USER_DEFCONFIG="jf_defconfig"
-VARIANT_DEFCONFIG="jactive_eur_defconfig-cm12.1"
+USER_DEFCONFIG="0hulk_CM12.1_defconfig"
+VARIANT_DEFCONFIG="jactive_eur_defconfig"
 SELINUX_DEFCONFIG="selinux_defconfig"
 
 {
