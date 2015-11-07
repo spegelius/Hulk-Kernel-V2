@@ -41,10 +41,11 @@ NORMAL=`tput sgr0`
 
 # DEFCONFIG Files
 USER_DEFCONFIG="0hulk_CM12.1_defconfig"
-VARIANT_DEFCONFIG="jactive_eur_defconfig"
+VARIANT_DEFCONFIG="jactive_eur_defconfig-cm12.1"
 SELINUX_DEFCONFIG="selinux_defconfig"
 
 {
+        export CROSS_COMPILE=$TOOLCHAIN
         echo -e $COLOR_RED$BOLD"=================================================="$COLOR_NEUTRAL
         echo -e $COLOR_RED$BOLD"$BUILD_USER is starting to Build $KERNEL_NAME"$COLOR_NEUTRAL
         echo -e $COLOR_RED$BOLD"CPU CORES= $BUILD_JOB_NUMBER"$COLOR_NEUTRAL
@@ -62,7 +63,6 @@ SELINUX_DEFCONFIG="selinux_defconfig"
         rm -r $KERNEL_DIR/output_hulk_*
 	make mrproper
         export USE_SEC_FIPS_MODE=true
-        export CROSS_COMPILE=$TOOLCHAIN
 	make VARIANT_DEFCONFIG=$VARIANT_DEFCONFIG $USER_DEFCONFIG SELINUX_DEFCONFIG=$SELINUX_DEFCONFIG
         export KCONFIG_NOTIMESTAMP=true
         export ARCH=arm
